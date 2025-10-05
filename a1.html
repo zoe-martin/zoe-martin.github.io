@@ -4,15 +4,82 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
 
-    <title>Example Student's HCDE 439 Physical Computing Page!</title>
+    <title>Zoe's HCDE 439 Physical Computing Page!</title>
 
     <link href="style.css" rel="stylesheet" type="text/css" />
+
   </head>
   <body>
-    <h1>Example Student's Assignment 1!</h1>
+    <h1>Zoe's Assignment 1!</h1>
     <div class="header">
-      <img src="red-panda.jpg" />
-      <p>Here is all the documentation for assignment 1!</p>
+      <p>Here is all the documentation for assignment 1.</p>
     </div>
+
+    <div class="image-section">
+      <p>This is my circuit:</p>
+      <img src="circuit.jpeg" />
+    </div>
+
+    <div class="image-section">
+      <p>Here are my calculations for the resistors I chose:</p>
+      <img src="A1-calculations.jpg" />
+    </div>
+
+    <div class="image-section">
+      <p>This is the schematic I created for my circuit:</p>
+      <img src="A1-schematic.jpg" />
+    </div>
+
+    <h2>Arduino Blink Code</h2>
+    <pre><code>
+      // initializing LEDs to ports
+      int led1 = 9; // red LED to port 9
+      int led2 = 7; // blue LED to port 7
+      int led3 = 5; // green LED to port 5
+
+      // the setup function runs once when you press reset or power the board
+      void setup() {
+        // initialize digital pin LED_BUILTIN as an output.
+        pinMode(led1, OUTPUT);
+        pinMode(led2, OUTPUT);
+        pinMode(led3, OUTPUT);
+
+      }
+
+      // the loop function runs over and over again forever
+      void loop() {
+        digitalWrite(led1, HIGH);  // turn the LED on (HIGH is the voltage level)
+        delay(1000);                      // wait for a second
+        digitalWrite(led1, LOW);   // turn the LED off by making the voltage LOW
+        delay(1000);                      // wait for a second
+
+
+        digitalWrite(led2, HIGH);   // turn LED on
+        delay(1000);                // wait for a second
+        digitalWrite(led2, LOW);    // turn LED off
+        delay(1000);                // wait for a second
+
+        digitalWrite(led3, HIGH);   // turn LED on
+        delay(1000);                // wait for a second
+        digitalWrite(led3, LOW);    // turn LED off
+        delay(1000);                // wait for a second
+      }
+    </code></pre>
+
+
+    <h2>Additional Questions</h2>
+    <div class="image-section">
+      <p>1.</p>
+      <img src="A1-graph.jpg" />
+    </div>
+
+    <p>2. </p>
+
+    <p>3. </p>
+
+    <p>4. </p>
+    
+    <p>5. </p>
+
   </body>
 </html>

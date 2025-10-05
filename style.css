@@ -71,3 +71,13 @@ h2 {
 .assignment p {
   margin-top: 0.5em;
 }
+
+/* New styles for image section */
+.image-section img {
+  max-width: 600px;  /* or 500px if you want them smaller */
+  width: 100%;
+  height: auto;
+  display: block;
+  margin: 1em auto;
+  border-radius: 8px; /* optional: soft corners */
+}
