@@ -74,10 +74,10 @@ h2 {
 
 /* New styles for image section */
 .image-section img {
-  max-width: 600px;  /* or 500px if you want them smaller */
+  max-width: 600px; 
   width: 100%;
   height: auto;
   display: block;
   margin: 1em auto;
-  border-radius: 8px; /* optional: soft corners */
+  border-radius: 8px; /* soft corners */
 }
