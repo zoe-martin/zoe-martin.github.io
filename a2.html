@@ -23,7 +23,68 @@
 
     <h2>Arduino Fade Code</h2>
     <pre><code>
+      /*  Example code:
+      https://docs.arduino.cc/built-in-examples/digital/Button/
+      */
 
+      // constants won't change. They're used here to set pin numbers:
+      const int buttonPin = 2;  // the number of the pushbutton pin
+      const int red = 11;    // the number of the LED pin (red LED)
+      const int green = 10;
+      const int blue = 9;
+      // variables will change:
+      int buttonState = 0;  // variable for reading the pushbutton status
+
+      void setup() {
+        // initialize the LED pin as an output:
+        pinMode(red, OUTPUT);
+        pinMode(green, OUTPUT);
+        pinMode(blue, OUTPUT);
+        // initialize the pushbutton pin as an input:
+        pinMode(buttonPin, INPUT);
+
+      }
+
+      void loop() {
+
+        // read state of button:
+        buttonState = digitalRead(buttonPin);
+
+        if(buttonState = HIGH){
+          // before each loop, checks button state
+          // red to green:
+          for (int i = 0; i <= 255 && digitalRead(buttonPin) == HIGH; i++) {
+            analogWrite(red, 255 - i);   // red fades out
+            analogWrite(green, i);       // green fades in
+            analogWrite(blue, 0);        // blue off
+            delay(10);
+          }
+
+          // green to blue:
+          for (int i = 0; i <= 25 && digitalRead(buttonPin) == HIGH; i++) {
+            analogWrite(red, 0);         // red off
+            analogWrite(green, 255 - i); // green fades out
+            analogWrite(blue, i);        // blue fades in
+            delay(10);
+          }
+
+          // blue to red:
+          for (int i = 0; i <= 255 && digitalRead(buttonPin) == HIGH; i++) {
+            analogWrite(red, i);         // red fades in
+            analogWrite(green, 0);       // green off
+            analogWrite(blue, 255 - i);  // blue fades out
+            delay(10);
+          }
+
+        } 
+        else {
+            // turn LED off:
+            digitalWrite(red, LOW);
+            digitalWrite(green, LOW);
+            digitalWrite(blue, LOW);
+        }
+        
+      }
     </code></pre>
 
     <h2>Additonal Questions</h2>
