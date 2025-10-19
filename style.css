@@ -71,6 +71,20 @@ h2 {
 .assignment p {
   margin-top: 0.5em;
 }
+.assignment {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-color: #fff;
+  padding: 1em;
+  border-radius: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Make all assignment cards equal height */
+.grid {
+  align-items: stretch;
+}
 
 /* New styles for image section */
 .image-section img {
