@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+    <title>Zoe's HCDE 439 Physical Computing Page!</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <h1>Zoe's Assignment 3!</h1>
+    <div class="header">
+      <p>Here is all the documentation for assignment 3:</p>
+    </div>
+    <div class="image-section">
+      <img src="a3-gif.gif" />
+    </div>
+
+    <div class="image-section">
+      <img src="a3-schematic.jpg" />
+    </div>
+
+    <div class="image-section">
+      <img src="a3-resistancecalculations.jpg" />
+    </div>
+
+    <h2>Arduino Input Output Code</h2>
+    <pre><code>
+    // Starting code from in class example.
+
+    // A0 one of Arduino's analog input pins to read a voltage btw 0V and 5V
+    const int analogInPin = A0;
+    // set up pins (PWM)
+    const int green = 6;
+    const int blue = 5;
+    const int yellow = 3;
+    void setup() {
+    // set up pins as output:
+    pinMode(green, OUTPUT);
+    pinMode(blue, OUTPUT);
+    pinMode(yellow, OUTPUT);
+    // start serial monitor for printing data values:
+    Serial.begin(9600);
+
+    }
+
+    // storing analog reading from pin A0, 0 - 990(measured values):
+    int sensorValue;
+    // storing brightness value (0-255);
+    int mappedValue;
+
+    void loop() {
+    // put your main code here, to run repeatedly:
+    // reads voltage, gives number 0 - 990
+    sensorValue = analogRead(analogInPin);
+    // print in serial monitor
+    Serial.print("Sensor value: ");
+    Serial.println(sensorValue);
+
+    // scales sensorVaue to 0 - 255
+    mappedValue = map(sensorValue, 0, 990, 0, 255);
+    
+    // sends PWM signals to LED pins
+    // if the sensorValue is greater than 200(atleast a certain level of brightness)
+    if(sensorValue > 200){
+        // Print blurb to serial monitor
+        Serial.println("Light detected — LEDs on!");
+        // LEDs fade togther based on photoreceptor
+        analogWrite(green, mappedValue);
+        analogWrite(blue, mappedValue);
+        analogWrite(yellow, mappedValue);
+    }
+    // if the sensorValue is less than 200
+    else {
+        // Print blurb to serial monitor
+        Serial.println("It's dark - LEDs off!");
+        // turn LEDs off
+        digitalWrite(green, LOW);
+        digitalWrite(blue, LOW);
+        digitalWrite(yellow, LOW);
+    }
+
+    // delay to make it easier to read monitor
+    delay(500);
+
+    }
+    </code></pre>
+
+    <h2>Additonal Questions</h2>
+
+    <div class="image-section">
+      <p>1. In a voltage divider, the variable resistor could be either R1 or R2.</p>
+      <img src="a3-q1.jpg" />
+    </div>
+
+     <div class="image-section">
+      <p>2.</p>
+      <img src="a3-q2.jpg" />
+    </div>
+
+     <p>3. If we had a 10 bit PWM and a 16 bit ADC, there would be more values than 0-1023 that would be scaled to the mapped values, meaning that the sensor would be more sensitve.  </p>
+
+     <p>4. In this assignment, I used chatGPT for reviewing the topics related to voltage dividers. </p>
+
+  </body>
+</html>
