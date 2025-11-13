@@ -62,6 +62,9 @@ function setup() {
 
 function draw() {
   background(0);
+  if (port.opened()) {
+    let str = port.readUntil("\n");
+  }
 
   // Set scale so that the game grid fills canvas
   scale(width / gridWidth, height / gridHeight);
@@ -73,6 +76,7 @@ function draw() {
     translate(0.5, 0.5);
     showFruit();
     showSegments();
+    joystickControl();
     updateSegments();
     checkForCollision();
     checkForFruit();
@@ -260,8 +264,21 @@ function updateFruitCoordinates() {
   fruit = createVector(x, y);
 }
 // Controlling snake with the joystick
+// Left = joyX < 400
+// Right = joyX > 600
+// Up = joyY < 400
+// Down = joyY > 600
+
 function joystickControl() {
-    
+    if (joyX < 400 && direction !== 'right') {
+        direction = 'left';
+    } else if (joyX > 600 && direction !== 'left') {
+        direction = 'right';
+     } else if (joyY < 400 && direction !== 'down') {
+        direction = 'up';
+    } else if (joyY > 600 && direction !== 'up') {
+        direction = 'down';
+    }
 }
 
 // When an arrow key is pressed, switch the snake's direction of movement,
