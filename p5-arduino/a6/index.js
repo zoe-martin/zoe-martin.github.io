@@ -64,6 +64,7 @@ function draw() {
   background(0);
   if (port.opened()) {
     let str = port.readUntil("\n");
+    
   }
 
   // Set scale so that the game grid fills canvas
