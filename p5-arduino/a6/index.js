@@ -75,11 +75,14 @@ function draw() {
     // read from Arduino
   if (port.available()) {
     let data = port.readUntil("\n").trim();
+     print("RAW:", data);  // debug
+
     let values = data.split(",");
-    if (values.length === 3) {
+    if (values.length === 2) {
       joyX = int(values[0]);
       joyY = int(values[1]);
     }
+     print("joyX:", joyX, "joyY:", joyY);  // debug
   }
 
   // Set scale so that the game grid fills canvas
@@ -316,16 +319,25 @@ function updateFruitCoordinates() {
 // Up = joyY < 400
 // Down = joyY > 600
 
+const deadzone = 80; // how far from center you must push
+const centerX = 512;
+const centerY = 512;
+
 function joystickControl() {
-    if (joyX < 400 && direction !== 'right') {
-        direction = 'left';
-    } else if (joyX > 600 && direction !== 'left') {
-        direction = 'right';
-     } else if (joyY < 400 && direction !== 'down') {
-        direction = 'up';
-    } else if (joyY > 600 && direction !== 'up') {
-        direction = 'down';
-    }
+     print("joyX:", joyX, "joyY:", joyY, "direction:", direction); // debug
+
+  if (joyX < centerX - deadzone && direction !== 'right') {
+    direction = 'left';
+  } 
+  else if (joyX > centerX + deadzone && direction !== 'left') {
+    direction = 'right';
+  } 
+  else if (joyY < centerY - deadzone && direction !== 'down') {
+    direction = 'up';
+  } 
+  else if (joyY > centerY + deadzone && direction !== 'up') {
+    direction = 'down';
+  }
 }
 
 // When an arrow key is pressed, switch the snake's direction of movement,
