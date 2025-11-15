@@ -45,10 +45,12 @@ const BAUD_RATE = 9600;
 
 function setup() {
   canvas = createCanvas(500, 500);
-  canvas.style("position", "relative");
-  canvas.style("z-index", "1"); // put canvas behind button
 
-  // --- Center the canvas ---
+  canvas.style("position", "relative");
+  // put canvas behind button
+  canvas.style("z-index", "1"); 
+
+  // center canvas
   centerCanvas();
 
   setupSerial(); // Run our serial setup function
@@ -69,6 +71,16 @@ function draw() {
 
     // set background color
     background(0);
+
+    // read from Arduino
+  if (port.available()) {
+    let data = port.readUntil("\n").trim();
+    let values = data.split(",");
+    if (values.length === 3) {
+      joyX = int(values[0]);
+      joyY = int(values[1]);
+    }
+  }
 
   // Set scale so that the game grid fills canvas
   scale(width / gridWidth, height / gridHeight);
@@ -305,23 +317,15 @@ function updateFruitCoordinates() {
 // Down = joyY > 600
 
 function joystickControl() {
-    // if (joyX < 400 && direction !== 'right') {
-    //     direction = 'left';
-    // } else if (joyX > 600 && direction !== 'left') {
-    //     direction = 'right';
-    //  } else if (joyY < 400 && direction !== 'down') {
-    //     direction = 'up';
-    // } else if (joyY > 600 && direction !== 'up') {
-    //     direction = 'down';
-    // }
-    const deadzoneLow = 450;
-    const deadzoneHigh = 550;
-
-    if (joyX < deadzoneLow && direction !== 'right') direction = 'left';
-    else if (joyX > deadzoneHigh && direction !== 'left') direction = 'right';
-
-    if (joyY < deadzoneLow && direction !== 'down') direction = 'up';
-    else if (joyY > deadzoneHigh && direction !== 'up') direction = 'down';
+    if (joyX < 400 && direction !== 'right') {
+        direction = 'left';
+    } else if (joyX > 600 && direction !== 'left') {
+        direction = 'right';
+     } else if (joyY < 400 && direction !== 'down') {
+        direction = 'up';
+    } else if (joyY > 600 && direction !== 'up') {
+        direction = 'down';
+    }
 }
 
 // When an arrow key is pressed, switch the snake's direction of movement,
@@ -380,8 +384,6 @@ function setupSerial() {
 //   onConnectButtonClicked();
 // });
 
- // Event-based reading
-  port.on('data', gotJoystickData);
 
 }
 
@@ -422,14 +424,14 @@ function windowResized() {
   centerCanvas();
 }
 
-// Called automatically when Arduino sends data
-function gotJoystickData() {
-  let currentString = port.readUntil("\n"); // read one line
-  if (!currentString) return;
+// Called when Arduino sends data
+// function gotJoystickData() {
+//   let currentString = port.readUntil("\n"); // read one line
+//   if (!currentString) return;
 
-  let joyValues = currentString.trim().split(",");
-  if (joyValues.length === 2) {
-    joyX = int(joyValues[0]);
-    joyY = int(joyValues[1]);
-  }
-}
+//   let joyValues = currentString.trim().split(",");
+//   if (joyValues.length === 2) {
+//     joyX = int(joyValues[0]);
+//     joyY = int(joyValues[1]);
+//   }
+// }
