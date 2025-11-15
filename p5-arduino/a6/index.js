@@ -40,19 +40,24 @@ let connectBtn;
 let joyX = 512;
 let joyY = 512;
 
+let canvas;
+const BAUD_RATE = 9600;
+
 function setup() {
-  createCanvas(500, 500);
+  canvas = createCanvas(500, 500);
+  canvas.style("position", "relative");
+  canvas.style("z-index", "1"); // put canvas behind button
+
+  // --- Center the canvas ---
+  centerCanvas();
 
   setupSerial(); // Run our serial setup function
 
-  // Adjust frame rate to set movement speed
   frameRate(10);
 
   textAlign(CENTER, CENTER);
   textSize(2);
 
-  // Check for saved high score in local browser storage
-  // If no score has been stored, this will be undefined
   highScore = getItem('high score');
 
   describe(
@@ -61,11 +66,9 @@ function setup() {
 }
 
 function draw() {
-  background(0);
-  if (port.opened()) {
-    let str = port.readUntil("\n");
-    
-  }
+
+    // set background color
+    background(0);
 
   // Set scale so that the game grid fills canvas
   scale(width / gridWidth, height / gridHeight);
@@ -85,23 +88,54 @@ function draw() {
 }
 
 function showStartScreen() {
+  background(0);
   noStroke();
   fill(32);
   rect(2, gridHeight / 2 - 5, gridWidth - 4, 10, 2);
   fill(255);
   text(
-    'Click to play.\nUse arrow keys to move.',
+    'Click to play.\nUse joystick to move.',
     gridWidth / 2,
     gridHeight / 2
   );
-  noLoop();
+//   noLoop();
 }
 
+
 function mousePressed() {
-  if (gameStarted === false) {
+  // Only start the game if:
+  // 1. The game hasn't started yet
+  // 2. The click is inside the canvas
+  if (!gameStarted && mouseX >= 0 && mouseX <= width &&
+                     mouseY >= 0 && mouseY <= height) {
     startGame();
   }
 }
+// function mousePressed() {
+//   // If connectBtn doesn't exist yet, behave normally
+//   if (!connectBtn) {
+//     if (!gameStarted) startGame();
+//     return;
+//   }
+
+//   // Get the page position and size of the connect button
+//   const rect = connectBtn.elt.getBoundingClientRect();
+
+//   // Convert the canvas-relative mouseX/mouseY to page coordinates
+//   const pageX = mouseX + canvas.position().x;
+//   const pageY = mouseY + canvas.position().y;
+
+//   // If the click was inside the button's rectangle, do nothing
+//   if (pageX >= rect.left && pageX <= rect.right && pageY >= rect.top && pageY <= rect.bottom) {
+//     return;
+//   }
+
+//   // Otherwise, start the game if it hasn't started yet
+//   if (!gameStarted) {
+//     startGame();
+//   }
+// }
+
 
 function startGame() {
   // Put the fruit in a random place
@@ -271,15 +305,23 @@ function updateFruitCoordinates() {
 // Down = joyY > 600
 
 function joystickControl() {
-    if (joyX < 400 && direction !== 'right') {
-        direction = 'left';
-    } else if (joyX > 600 && direction !== 'left') {
-        direction = 'right';
-     } else if (joyY < 400 && direction !== 'down') {
-        direction = 'up';
-    } else if (joyY > 600 && direction !== 'up') {
-        direction = 'down';
-    }
+    // if (joyX < 400 && direction !== 'right') {
+    //     direction = 'left';
+    // } else if (joyX > 600 && direction !== 'left') {
+    //     direction = 'right';
+    //  } else if (joyY < 400 && direction !== 'down') {
+    //     direction = 'up';
+    // } else if (joyY > 600 && direction !== 'up') {
+    //     direction = 'down';
+    // }
+    const deadzoneLow = 450;
+    const deadzoneHigh = 550;
+
+    if (joyX < deadzoneLow && direction !== 'right') direction = 'left';
+    else if (joyX > deadzoneHigh && direction !== 'left') direction = 'right';
+
+    if (joyY < deadzoneLow && direction !== 'down') direction = 'up';
+    else if (joyY > deadzoneHigh && direction !== 'up') direction = 'down';
 }
 
 // When an arrow key is pressed, switch the snake's direction of movement,
@@ -312,20 +354,35 @@ function joystickControl() {
 
 // Three helper functions for managing the serial connection.
 
+// call this from setup()
 function setupSerial() {
   port = createSerial();
 
-  // Check to see if there are any ports we have used previously
+  // check if there are any ports we have used previously
   let usedPorts = usedSerialPorts();
   if (usedPorts.length > 0) {
-    // If there are ports we've used, open the first one
     port.open(usedPorts[0], BAUD_RATE);
   }
 
-  // create a connect button
+  // Create a connect button and place it outside the canvas
   connectBtn = createButton("Connect to Arduino");
-  connectBtn.position(5, 5); // Position the button in the top left of the screen.
-  connectBtn.mouseClicked(onConnectButtonClicked); // When the button is clicked, run the onConnectButtonClicked function
+  connectBtn.parent("serial-ui");        // put it in the serial-ui div
+  connectBtn.style("position", "fixed"); // take it out of normal flow
+  connectBtn.style("z-index", "9999");
+  connectBtn.style("pointer-events", "auto");  
+  connectBtn.position(20, 20);           // screen coordinates
+
+ connectBtn.mousePressed(onConnectButtonClicked);
+
+// debugging
+// connectBtn.mousePressed(() => {
+//   console.log("BUTTON CLICKED");
+//   onConnectButtonClicked();
+// });
+
+ // Event-based reading
+  port.on('data', gotJoystickData);
+
 }
 
 function checkPort() {
@@ -350,5 +407,29 @@ function onConnectButtonClicked() {
   } else {
     // Otherwise, we close it!
     port.close();
+  }
+}
+
+// Helper function to center the canvas
+function centerCanvas() {
+  let x = (windowWidth - width) / 2;
+  let y = (windowHeight - height) / 2;
+  canvas.position(x, y);
+}
+
+// Keep canvas centered when window size changes
+function windowResized() {
+  centerCanvas();
+}
+
+// Called automatically when Arduino sends data
+function gotJoystickData() {
+  let currentString = port.readUntil("\n"); // read one line
+  if (!currentString) return;
+
+  let joyValues = currentString.trim().split(",");
+  if (joyValues.length === 2) {
+    joyX = int(joyValues[0]);
+    joyY = int(joyValues[1]);
   }
 }
