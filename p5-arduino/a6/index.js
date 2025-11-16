@@ -55,7 +55,7 @@ function setup() {
 
   setupSerial(); // Run our serial setup function
 
-  frameRate(10);
+//   frameRate(10);
 
   textAlign(CENTER, CENTER);
   textSize(2);
@@ -96,7 +96,10 @@ function draw() {
     showFruit();
     showSegments();
     joystickControl();
-    updateSegments();
+
+    if (frameCount % 8 == 0) { // if the current frame is divisible by 10
+        updateSegments();         // update the snake
+    }
     checkForCollision();
     checkForFruit();
   }
@@ -240,6 +243,8 @@ function checkForCollision() {
 }
 
 function gameOver() {
+  // buzz command for dying
+  buzz("DEAD");
   noStroke();
   fill(32);
   rect(2, gridHeight / 2 - 5, gridWidth - 4, 12, 2);
@@ -289,6 +294,9 @@ function checkForFruit() {
   if (head.equals(fruit) === true) {
     // Give player a point
     score = score + 1;
+
+    // buzz command for fruit
+    buzz("FRUIT");
 
     // Duplicate the tail segment
     let tail = segments[segments.length - 1];
@@ -447,3 +455,10 @@ function windowResized() {
 //     joyY = int(joyValues[1]);
 //   }
 // }
+
+// send buzz command to Arduino
+function buzz(cmd) {
+  if (port && port.opened()) {
+    port.write(cmd + "\n");
+  }
+}
