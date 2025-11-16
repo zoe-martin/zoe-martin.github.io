@@ -1,4 +1,4 @@
-// used base code: https://p5js.org/examples/games-snake/
+// base code: https://p5js.org/examples/games-snake/
 
 // The snake moves along a grid, one space at a time
 // The grid is smaller than the canvas, and its dimensions
@@ -36,26 +36,31 @@ let fruit;
 let port;
 let connectBtn;
 
-// Joystick values(middle values)
+// Joystick values(starting middle values)
 let joyX = 512;
 let joyY = 512;
 
+// create canvas variable
 let canvas;
+// baud rate for serial communication
 const BAUD_RATE = 9600;
 
 function setup() {
+  // set canvas size
   canvas = createCanvas(500, 500);
 
-  canvas.style("position", "relative");
   // put canvas behind button
+  canvas.style("position", "relative");
   canvas.style("z-index", "1"); 
 
   // center canvas
   centerCanvas();
 
-  setupSerial(); // Run our serial setup function
+  // run serial setup function
+  setupSerial();
 
-//   frameRate(10);
+  // commented out so joystick input can be read smoothly:
+  // frameRate(10);
 
   textAlign(CENTER, CENTER);
   textSize(2);
@@ -77,6 +82,7 @@ function draw() {
     let data = port.readUntil("\n").trim();
      print("RAW:", data);  // debug
 
+    // split values into array
     let values = data.split(",");
     if (values.length === 2) {
       joyX = int(values[0]);
@@ -97,7 +103,8 @@ function draw() {
     showSegments();
     joystickControl();
 
-    if (frameCount % 8 == 0) { // if the current frame is divisible by 10
+    // update position every 8 frames
+    if (frameCount % 8 == 0) { // if the current frame is divisible by 8
         updateSegments();         // update the snake
     }
     checkForCollision();
@@ -121,39 +128,13 @@ function showStartScreen() {
 
 
 function mousePressed() {
-  // Only start the game if:
-  // 1. The game hasn't started yet
-  // 2. The click is inside the canvas
+  // Only start the game if the game hasn't started yet and the click is inside the canvas
+  // (Not on the connect button)
   if (!gameStarted && mouseX >= 0 && mouseX <= width &&
                      mouseY >= 0 && mouseY <= height) {
     startGame();
   }
 }
-// function mousePressed() {
-//   // If connectBtn doesn't exist yet, behave normally
-//   if (!connectBtn) {
-//     if (!gameStarted) startGame();
-//     return;
-//   }
-
-//   // Get the page position and size of the connect button
-//   const rect = connectBtn.elt.getBoundingClientRect();
-
-//   // Convert the canvas-relative mouseX/mouseY to page coordinates
-//   const pageX = mouseX + canvas.position().x;
-//   const pageY = mouseY + canvas.position().y;
-
-//   // If the click was inside the button's rectangle, do nothing
-//   if (pageX >= rect.left && pageX <= rect.right && pageY >= rect.top && pageY <= rect.bottom) {
-//     return;
-//   }
-
-//   // Otherwise, start the game if it hasn't started yet
-//   if (!gameStarted) {
-//     startGame();
-//   }
-// }
-
 
 function startGame() {
   // Put the fruit in a random place
@@ -245,6 +226,7 @@ function checkForCollision() {
 function gameOver() {
   // buzz command for dying
   buzz("DEAD");
+
   noStroke();
   fill(32);
   rect(2, gridHeight / 2 - 5, gridWidth - 4, 12, 2);
@@ -322,30 +304,26 @@ function updateFruitCoordinates() {
   fruit = createVector(x, y);
 }
 // Controlling snake with the joystick
-// Left = joyX < 400
-// Right = joyX > 600
-// Up = joyY < 400
-// Down = joyY > 600
 
 const deadzone = 80; // how far from center you must push
 const centerX = 512;
 const centerY = 512;
 
 function joystickControl() {
-     print("joyX:", joyX, "joyY:", joyY, "direction:", direction); // debug
+    print("joyX:", joyX, "joyY:", joyY, "direction:", direction); // debug
 
-  if (joyX < centerX - deadzone && direction !== 'right') {
-    direction = 'left';
-  } 
-  else if (joyX > centerX + deadzone && direction !== 'left') {
-    direction = 'right';
-  } 
-  else if (joyY < centerY - deadzone && direction !== 'down') {
-    direction = 'up';
-  } 
-  else if (joyY > centerY + deadzone && direction !== 'up') {
-    direction = 'down';
-  }
+    if (joyX < centerX - deadzone && direction !== 'right') {
+        direction = 'left';
+    } 
+    else if (joyX > centerX + deadzone && direction !== 'left') {
+        direction = 'right';
+    } 
+    else if (joyY < centerY - deadzone && direction !== 'down') {
+        direction = 'up';
+    } 
+    else if (joyY > centerY + deadzone && direction !== 'up') {
+        direction = 'down';
+    }
 }
 
 // When an arrow key is pressed, switch the snake's direction of movement,
@@ -404,7 +382,6 @@ function setupSerial() {
 //   onConnectButtonClicked();
 // });
 
-
 }
 
 function checkPort() {
@@ -443,18 +420,6 @@ function centerCanvas() {
 function windowResized() {
   centerCanvas();
 }
-
-// Called when Arduino sends data
-// function gotJoystickData() {
-//   let currentString = port.readUntil("\n"); // read one line
-//   if (!currentString) return;
-
-//   let joyValues = currentString.trim().split(",");
-//   if (joyValues.length === 2) {
-//     joyX = int(joyValues[0]);
-//     joyY = int(joyValues[1]);
-//   }
-// }
 
 // send buzz command to Arduino
 function buzz(cmd) {
