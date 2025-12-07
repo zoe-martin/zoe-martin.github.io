@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, maximum-scale=1.0" />
+
+    <title>Zoe's HCDE 439 Physical Computing Page!</title>
+
+    <link href="style.css" rel="stylesheet" type="text/css" />
+
+  </head>
+  <body>
+    <h1>FocusFriend!</h1>
+
+     <div class="image-section">
+      <img src="final-picture.jpg" />
+    </div>
+
+    <h2>Project Description</h2>
+    <p>FocusFriend is a desk buddy that helps you stay focused while working or studying! Personally, I struggle with sitting still for long periods of time to complete tasks, so I wanted to make something I would find helpful.
+        It uses a ultrasonic distance sensor to detect when you are present at your desk, and uses audio and visual indicators of different modes. I implemented 3 modes that you can switch between by clicking the button.</p>
+    <h3>Modes: </h3>
+        <p>IDLE: LED off, no buzzer, no sensor <br> FOCUS: Green LED, warning beep when you go further than 50 cm away <br>BREAK: Blue gradient LED, Break tune, 10 min timer</p>
+    <h3>Physical Enclosure: </h3>
+        <p>For my physical enclosure, I laser cut a rectangular box out of cardboard to hold my arduino and breadboard with holes to access the individual parts(buzzer, LED, button, distance sensor wires). For the button,
+        I made a button extender out of cardboard. I also lasercut 5 sides of a cube(one with a hole for the distance sensor wires) and glued them together on top of the first box to hold the distance sensor upright. 
+        <br> For creating the laser cutting design file, it is important to carefully measure the dimensions of the parts and keep in mind the thickness of the cardboard or other material used. I had to redo a few parts due to
+        them not fitting right the first time. For the parts that the cardboard fit together, the slots should be a little bit wider than the cardboard's measured thickness. To determine where the holes for the button and other 
+        features should be placed, I measured how far they were from the side of the breadboard to use as reference. </p>
+
+
+    <h2>Technical Implementation</h2>
+
+    <div class="image-section">
+      <img src="final-circuit-picture.jpg" />
+    </div>
+
+    <div class="image-section">
+      <img src="final-schematic.jpg" />
+    </div>
+
+     <div class="video-section">
+        <h3>Demo Video:</h3>
+      <iframe width="560" height="315" src="https://www.youtube.com/embed/x3pz7D4Vr1k?si=p1aC7blaaO_6dw0J" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    </div>
+
+    <h2>Arduino Code</h2>
+    <pre><code>
+     
+    </code></pre>
+
+  </body>
+</html>
