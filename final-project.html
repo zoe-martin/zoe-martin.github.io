@@ -46,7 +46,232 @@
 
     <h2>Arduino Code</h2>
     <pre><code>
-     
+     // assigning pins for distance sensor
+    const int trigPin = A0;
+    const int echoPin = A1;
+
+    // assigning pins for button and buzzer
+    const int buttonPin = 2;
+    const int buzzerPin = 10;
+
+    // assigning pins for RGB LED
+    const int red = 9;
+    const int green = 6;
+    const int blue = 5;
+
+
+    // variables for break timer
+    unsigned long breakStartTime = 0;
+    const unsigned long breakDuration = 10UL * 60UL * 1000UL; // 10 minutes
+    bool breakAlertPlayed = false;
+
+    // 3 modes
+    enum Mode{
+      IDLE,
+      FOCUS,
+      BREAK
+    };
+
+    // default mode
+    Mode currentMode = IDLE; 
+
+    void setup() {
+      // put your setup code here, to run once:
+      Serial.begin(9600);
+
+      // initializing pins
+      pinMode(trigPin, OUTPUT);
+      pinMode(echoPin, INPUT);
+
+      pinMode(buttonPin, INPUT);
+      pinMode(buzzerPin, OUTPUT);
+
+      pinMode(red, OUTPUT);
+      pinMode(green, OUTPUT);
+      pinMode(blue, OUTPUT);
+
+    }
+
+    void loop() {
+      // put your main code here, to run repeatedly:
+      // run update mode and run mode functions
+      updateMode();
+      runMode();
+
+    }
+
+    // This function returns the distance from the sensor in cm
+    long getDistance() {
+      // set trigger pin low
+      digitalWrite(trigPin, LOW);
+      delayMicroseconds(2);
+
+      // send 10 microsecond high pulse
+      digitalWrite(trigPin, HIGH);
+      delayMicroseconds(10);
+      digitalWrite(trigPin, LOW);
+
+      // measure low long echo pin is high
+      long duration = pulseIn(echoPin, HIGH);
+      // convert time(microseconds) to distance(cm)
+      // divide by 2 because pulse travels from object and back
+      long distance = duration * 0.034 / 2;
+      return distance;
+    }
+
+    // This function reads in from the button
+    // returns true once with one clean press
+    bool checkButton() {
+      // lastState stores button state from last loop
+      // low = unpressed
+      static bool lastState = LOW;
+      // read in current state
+      bool currentState = digitalRead(buttonPin);
+
+      // if LOW -> HIGH
+      if (lastState == LOW && currentState == HIGH) {
+        // delay for debouncing
+        delay(20);
+        // update current state
+        lastState = currentState;
+        // new press
+        return true;
+      }
+      lastState = currentState;
+      // no new press
+      return false;
+    }
+
+    // This function switches between modes
+    void updateMode() {
+      static Mode lastMode = IDLE;
+      // switch modes in this order IDLE -> FOCUS -> BREAK -> back to IDLE
+      if (checkButton()) {
+        if (currentMode == IDLE) {
+          currentMode = FOCUS;
+        } else if (currentMode == FOCUS) {
+          currentMode = BREAK;
+        } else {
+          currentMode = IDLE;
+        }
+
+        // print current mode in monitor for debugging
+        Serial.println(currentMode);
+
+        // if switched to break mode, play tune
+        if (currentMode == BREAK && lastMode != BREAK) {
+
+            // start 10 min timer
+            breakStartTime = millis();
+            breakAlertPlayed = false;
+
+          // play tune again after 10 min
+          playBreakTune();
+        }
+        // update last mode
+        lastMode = currentMode;
+      }
+    }
+
+    // This function implements each mode's behaviour
+    void runMode() {
+      // read distance from sensor
+      long distance = getDistance();
+
+      // IDLE mode
+      if (currentMode == IDLE) {
+        // RGB OFF
+        analogWrite(red,   0);
+        analogWrite(green, 0);
+        analogWrite(blue,  0);
+
+        // no sound
+        noTone(buzzerPin);
+      }
+      // FOCUS mode
+      else if (currentMode == FOCUS) {
+        // remembers last state
+        static bool tooFar = false;
+        // when the last beep happened
+        static unsigned long lastBeepTime = 0;
+        // 1.5 sec cooldown
+        const unsigned long beepCooldown = 1500;
+
+        // buffer threshold:
+        // turn warning ON above this
+        int tooFarOn  = 50;
+        // turn warning OFF below this
+        int tooFarOff = 40;
+
+        // prevents flickering
+        if (distance > tooFarOn) {
+          // go into warning state
+          tooFar = true;
+        }
+        if (distance < tooFarOff) {
+          // leave warning state
+          tooFar = false;
+        }
+
+        // start measuring current time
+        unsigned long now = millis();
+
+        // only beep is user is too far, and cooldown has passed
+        if (tooFar) {
+          if (now - lastBeepTime > beepCooldown) {
+            pinMode(buzzerPin, OUTPUT);
+            tone(buzzerPin, 1000, 200);  // short beep
+            lastBeepTime = now;
+          }
+        } else {
+          noTone(buzzerPin);
+        }
+
+        // RGB = solid green (full brightness)
+        analogWrite(red,   0);
+        analogWrite(green, 255);
+        analogWrite(blue,  0);
+      }
+
+      // BREAK mode
+      else if (currentMode == BREAK) {
+        // pulsing animation
+        int brightness = (sin(millis() / 800.0) + 1) * 127;
+        analogWrite(red,   0);
+        analogWrite(green, 0);
+        analogWrite(blue,  brightness);
+
+        // start tracking time(in milliseconds)
+        unsigned long now = millis();
+
+        // When break reaches 10 minutes and alert hasn't played yet
+        if (!breakAlertPlayed && (now - breakStartTime >= breakDuration)) {
+            // play break tune
+            playBreakTune(); 
+            breakAlertPlayed = true;
+        }
+
+        noTone(buzzerPin);
+      }
+    }
+
+    // This function plays a tune for break mode
+    void playBreakTune() {
+      int buzzer = 10;
+
+      // set buzzer to output
+      pinMode(buzzerPin, OUTPUT);
+      tone(buzzer, 880, 150);
+      delay(180);
+      tone(buzzer, 988, 150);
+      delay(180);
+      tone(buzzer, 1047, 200);
+      delay(250);
+
+      noTone(buzzer);
+      // switch to input to stop noise
+      pinMode(buzzerPin, INPUT);
+    }
     </code></pre>
 
   </body>
